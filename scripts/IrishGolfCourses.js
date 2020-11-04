@@ -1,4 +1,4 @@
-export default [
+module.exports = [
     'Abbeyleix Golf Club',
     'Ardglass Golf Club',
     'Athenry Golf Club',

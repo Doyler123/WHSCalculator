@@ -1,38 +1,143 @@
 const puppeteer = require('puppeteer');
-const moment = require('moment');
+var fs = require('fs');
 
 (async () => {
 
-  
+  const outputFileName = 'data.json';
 
-  const browser = await puppeteer.launch();
+  // const courses = require('./IrishGolfCourses').slice(0, 50);
+  const courses = ['Ballyliffin'];
+
+  const result = {
+    multipleSearchResults: [],
+    noSearchResults: [],
+    otherErrors: [],
+    courses: []
+  }
+
+  const browser = await puppeteer.launch({
+    args: [
+      '--window-size=1920,1080',
+    ],
+  });
   const page = await browser.newPage();
 
-  await page.goto('https://ncrdb.usga.org/');
-  
-  
-  await page.select('[name="ddCountries"]', 'IRL');
-  await page.$eval('#txtClubName', el => el.value = 'Luttrellstown');
-  await page.click('[name="myButton"]');
-  
-  await page.waitForSelector('#gvCourses');
+  for (let i = 0; i < courses.length; i++) {
+    let courseName = courses[i];
+    let searchString = courseName;
 
-  const searchResults = await page.$$eval('#gvCourses tbody tr', rows => rows.map(row => {
-      const cols = row.querySelectorAll('td');
-      return {
-         name: cols[0].innerHTML,
-         href: cols[1].querySelector('a').href 
+    try{
+      if(searchString.includes('-')){
+        searchString = searchString.split('-')[0].trim();
       }
-  }))
-  
-  if(searchResults.length === 1){
-    await page.goto(searchResults[0].href);
+      if(searchString.includes('Golf Club')){
+        searchString = courseName.replace('Golf Club', '').trim();
+      }
+      if(searchString.includes('Golf & Country Club')){
+        searchString = courseName.replace('Golf & Country Club', '').trim();
+      }
+    }catch(e){
+      searchString = courseName;
+    }
+
+    try{
+
+      await page.goto('https://ncrdb.usga.org/');
+    
+    
+      await page.select('[name="ddCountries"]', 'IRL');
+      await page.$eval('#txtClubName', (el, _searchString) => el.value = _searchString, searchString);
+      await page.click('[name="myButton"]');
+      
+      await page.waitForSelector('#gvCourses', {timeout: 5000});
+    
+      const searchResults = await page.$$eval('#gvCourses tbody tr', rows => rows.map(row => {
+          const cols = row.querySelectorAll('td');
+          return {
+            name: cols[0].innerHTML,
+            href: cols[1].querySelector('a').href 
+          }
+      }))
+      
+      if (searchResults.length === 1) {
+        console.log(`Going to page ${searchResults[0].href}`)
+        await page.goto(searchResults[0].href);
+      } else {
+        result.multipleSearchResults.push({courseName: courseName, searchString: searchString})
+        throw new Error(`CustomMessage: Multiple search results search: ${searchString}`);
+      }
+
+      await page.waitForSelector('#gvCourseTees');
+    
+      let courseId;
+      if(searchResults[0].href.includes('CourseID=')){
+        courseId = searchResults[0].href.split('=')[1]
+      }else{
+        courseId = 'none'
+      }
+    
+    //   await page.waitFor(3000); gvTee
+    
+    
+      let courseData = await page.$$eval('#gvCourseTees tbody tr', rows => {
+        let cols = rows[1].querySelectorAll('td');
+        return {
+          name: cols[0].innerText.trim(),
+          city: cols[1].innerText.trim(),
+          state: cols[2].innerText.trim(),
+        }
+      })
+    
+      let teeData = await page.$$eval('#gvTee tbody tr', rows => rows.map(row => {
+        const cols = row.querySelectorAll('td');
+    
+        if(cols.length <= 0){
+          return {}
+        }
+    
+        return {
+          name: cols[0].innerText.trim(),
+          gender: cols[1].innerText.trim(),
+          par: cols[2].innerText.trim(),
+          courseRating: cols[3].innerText.trim(),
+          bogeyRating: cols[4].innerText.trim(),
+          slopeRating: cols[5].innerText.trim(),
+          front9: cols[6].innerText.trim(),
+          back9: cols[7].innerText.trim() 
+        }
+      }))
+    
+      courseData.tees = teeData.filter(tee => Object.keys(tee).length > 0)
+      courseData.id = courseId ? courseId : courseData.name
+    
+      result.courses.push(courseData);
+
+      console.log(`Finished course: ${courseName}`)
+
+    }catch(e){
+      console.log(`Error for course: ${courseName}`)
+      console.log(e.message)
+      if(e.message.includes('waiting for selector `#gvCourses`')){
+        console.log(`No results for: ${courseName} - ${searchString}`)
+        result.noSearchResults.push({courseName: courseName, searchString: searchString})
+      } else if (!e.message.includes('CustomMessage:')) {
+        result.otherErrors.push(`${courseName}: ${e.message}`)
+      }
+    }
+    
   }
-  await page.waitForSelector('#gvCourseTees');
 
-//   await page.waitFor(3000);
+  fs.unlink(outputFileName, function (err) {
+    if (err) throw err;
+    console.log('Data file deleted!');
+  });
 
-  await page.screenshot({path: 'screenshot.png', fullPage: true });
+  fs.appendFile(outputFileName, JSON.stringify(result, null, 2), function (err) {
+    if (err) throw err;
+    console.log(`Saved results to /${outputFileName}`);
+  });
+
+  // await page.screenshot({path: 'screenshot.png', fullPage: true });
 
   await browser.close();
 })();
