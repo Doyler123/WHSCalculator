@@ -6,7 +6,9 @@ var fs = require('fs');
   const outputFileName = 'data.json';
 
   // const courses = require('./IrishGolfCourses').slice(0, 50);
-  const courses = ['Ballyliffin'];
+  const courses = ['Ardglass'];
+  const countries = ['NIR'];
+  // const countries = ['IRL', 'NIR'];
 
   const result = {
     multipleSearchResults: [],
@@ -40,24 +42,48 @@ var fs = require('fs');
       searchString = courseName;
     }
 
+    let searchResults;
+
     try{
 
       await page.goto('https://ncrdb.usga.org/');
-    
-    
-      await page.select('[name="ddCountries"]', 'IRL');
-      await page.$eval('#txtClubName', (el, _searchString) => el.value = _searchString, searchString);
-      await page.click('[name="myButton"]');
-      
-      await page.waitForSelector('#gvCourses', {timeout: 5000});
-    
-      const searchResults = await page.$$eval('#gvCourses tbody tr', rows => rows.map(row => {
-          const cols = row.querySelectorAll('td');
-          return {
-            name: cols[0].innerHTML,
-            href: cols[1].querySelector('a').href 
+
+      for(let j = 0; j < countries.length; j++) {
+        let country = countries[j];
+
+        try{
+  
+          await page.select('[name="ddCountries"]', country);
+          await page.$eval('#txtClubName', (el, _searchString) => el.value = _searchString, searchString);
+          await page.click('[name="myButton"]');
+          
+          await page.waitForSelector('#gvCourses', {timeout: 5000});
+        
+          searchResults = await page.$$eval('#gvCourses tbody tr', rows => rows.map(row => {
+              const cols = row.querySelectorAll('td');
+              return {
+                name: cols[0].innerHTML,
+                href: cols[1].querySelector('a').href 
+              }
+          }))
+
+          break;
+  
+        }catch(e){
+  
+          if(e.message.includes('waiting for selector `#gvCourses`')){
+            console.log(`No results for: ${courseName} | Search string: ${searchString} | Country: ${country}`)
+            result.noSearchResults.push({courseName: courseName, searchString: searchString, country: country})
+          } else if(j !== (countries.length - 1)){
+            result.otherErrors.push(`${courseName}: ${e.message}`)
+          } else {
+            throw e;
           }
-      }))
+  
+        }
+      }
+    
+    
       
       if (searchResults.length === 1) {
         console.log(`Going to page ${searchResults[0].href}`)
@@ -117,10 +143,7 @@ var fs = require('fs');
     }catch(e){
       console.log(`Error for course: ${courseName}`)
       console.log(e.message)
-      if(e.message.includes('waiting for selector `#gvCourses`')){
-        console.log(`No results for: ${courseName} - ${searchString}`)
-        result.noSearchResults.push({courseName: courseName, searchString: searchString})
-      } else if (!e.message.includes('CustomMessage:')) {
+      if(!e.message.includes('CustomMessage:')) {
         result.otherErrors.push(`${courseName}: ${e.message}`)
       }
     }

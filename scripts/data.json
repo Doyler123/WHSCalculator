@@ -1,0 +1,65 @@
+{
+  "multipleSearchResults": [],
+  "noSearchResults": [],
+  "otherErrors": [],
+  "courses": [
+    {
+      "name": "Ardglass Golf Club - Ardglass Golf Club",
+      "city": "Co. Down",
+      "state": "",
+      "tees": [
+        {
+          "name": "White",
+          "gender": "M",
+          "par": "70",
+          "courseRating": "69.1",
+          "bogeyRating": "89.8",
+          "slopeRating": "112",
+          "front9": "33.7 / 109",
+          "back9": "35.4 / 114"
+        },
+        {
+          "name": "Green",
+          "gender": "M",
+          "par": "70",
+          "courseRating": "67.1",
+          "bogeyRating": "87.2",
+          "slopeRating": "108",
+          "front9": "32.7 / 105",
+          "back9": "34.4 / 111"
+        },
+        {
+          "name": "Green",
+          "gender": "F",
+          "par": "70",
+          "courseRating": "73.7",
+          "bogeyRating": "104.1",
+          "slopeRating": "129",
+          "front9": "35.8 / 126",
+          "back9": "37.9 / 131"
+        },
+        {
+          "name": "Red",
+          "gender": "F",
+          "par": "70",
+          "courseRating": "70.8",
+          "bogeyRating": "99.3",
+          "slopeRating": "121",
+          "front9": "34.4 / 116",
+          "back9": "36.4 / 126"
+        },
+        {
+          "name": "Red (1-6,16-18)",
+          "gender": "F",
+          "par": "34",
+          "courseRating": "34.1",
+          "bogeyRating": "48.0",
+          "slopeRating": "118",
+          "front9": "34.1 / 118",
+          "back9": "/"
+        }
+      ],
+      "id": "22917"
+    }
+  ]
+}
