@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { DarkTheme, DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import AppNavigator from './src/navigation';
@@ -7,6 +7,23 @@ import { StateProvider, defaultReducer } from './src/state';
 import Loading from './src/components/Loading';
 import { keys } from './src/state';
 import { SCREENS } from './src/constants';
+
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#009B77',
+    accent: '#FCE300',
+  },
+};
+const darkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: '#009B77',
+    accent: '#FCE300',
+  },
+};
 
 export default function App() {
 
@@ -55,7 +72,7 @@ export default function App() {
 
   return (
     <StateProvider initialState={initialState} reducer={defaultReducer}>
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <AppNavigator initialScreen={initialState.course ? SCREENS.HANDICAP : SCREENS.SEARCH}/>
       </PaperProvider>
     </StateProvider>

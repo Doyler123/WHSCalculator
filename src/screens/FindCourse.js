@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, ScrollView, Keyboard } from 'react-native'
-import { Searchbar, List, Dialog, Portal, Provider, TouchableRipple, TextInput, Button } from 'react-native-paper'
+import { Searchbar, List, Dialog, Portal, Provider, TouchableRipple, TextInput, Button, withTheme } from 'react-native-paper'
 
 import Header from '../components/Header'
 import courseData from '../data/courses'
@@ -9,7 +9,36 @@ import { useStateValue, actions } from '../state/';
 import { SCREENS } from '../constants'
 import { getCourseDescription } from '../util/dataUtil'
 
-function FindCourse({ navigation }) {
+function FindCourse({ navigation, theme }) {
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.colors.background,
+            paddingHorizontal: 10,
+            paddingVertical: 20
+        },
+        titleContainer: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1
+        },
+        title: {
+            fontSize: 20
+        },
+        fab: {
+            position: 'absolute',
+            margin: 20,
+            right: 0,
+            bottom: 10
+        },
+        textInputDialog: {
+            paddingTop: 20,
+        },
+        searchInput: {
+            backgroundColor: theme.colors.background,
+        }
+    })
 
   const [{ handicapIndex }, dispatch ] = useStateValue();
 
@@ -120,12 +149,13 @@ function FindCourse({ navigation }) {
                     }
                 </Dialog>
             </Portal>
-            <Header titleText='Find a course' />
+            <Header titleText={`Find a course`} theme={theme}/>
             <View style={styles.container}>
                 <Searchbar
                     placeholder="Search"
                     onChangeText={onChangeSearch}
                     value={searchQuery}
+                    style={styles.searchInput}
                 />
                 <ScrollView>      
                     {courses.map((course, index) =>
@@ -144,30 +174,4 @@ function FindCourse({ navigation }) {
   )
 }
 
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      paddingHorizontal: 10,
-      paddingVertical: 20
-    },
-    titleContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      flex: 1
-    },
-    title: {
-      fontSize: 20
-    },
-    fab: {
-      position: 'absolute',
-      margin: 20,
-      right: 0,
-      bottom: 10
-    },
-    textInputDialog: {
-        paddingTop: 20,
-    }
-  })
-
-export default FindCourse
+export default withTheme(FindCourse)

@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
-import { Dialog, Portal, Text, Surface, TouchableRipple, Switch, TextInput, Button } from 'react-native-paper'
+import { Dialog, Portal, Text, Surface, TouchableRipple, Switch, TextInput, Button, withTheme } from 'react-native-paper'
 
 import Header from '../components/Header'
 import { getTeesGender, calculateCourseHandicap, calculatePlayingHandicap } from '../util/dataUtil'
 import { useStateValue, actions } from '../state/';
 import TeeListItem from '../components/TeeListItem';
+import { SCREENS } from '../constants';
 
 const dialogs = {
     TEES: 'tees',
@@ -15,7 +16,71 @@ const dialogs = {
     PLAYING_HANDICAP: 'ph',
 }
 
-function CalculateHandicap() {
+function CalculateHandicap({ navigation, theme }) {
+
+    const styles = StyleSheet.create({
+        container: {
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          backgroundColor: theme.colors.background,
+          paddingHorizontal: 10,
+          paddingVertical: 40,
+          flexWrap: 'wrap'
+        },
+        bodyText: {
+          fontSize: 25,
+        },
+        bodyTextSecondary: {
+          fontSize: 10
+        },
+        bodyTextLarge: {
+          fontSize: 30
+        },
+        bodyTextSmall: {
+          fontSize: 20
+        },
+        ripple: {
+          // width: '100%'
+          alignItems: 'center'
+        },
+        surface: {
+          padding: 8,
+          height: 140,
+          width: '45%',
+          alignItems: 'center',
+          elevation: 6,
+          marginBottom: 20,
+          borderRadius: 15
+        },
+        surfaceHeader: {
+          flex: 2,
+          fontSize: 20,
+          fontWeight: 'bold'
+        },
+        surfaceBody: {
+            flex: 5,
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%'
+        },
+        surfaceFooter: {
+            flex: 1,
+            fontSize: 10
+        },
+        switchView: {
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexDirection: 'row',
+            paddingTop: 20,
+        },
+        textInputDialog: {
+            paddingTop: 20,
+        },
+        switchText: {
+          fontSize: 17
+        }
+      })
 
   const [{ course, tee, handicapIndex, crPar, handicapAllowance }, dispatch ] = useStateValue();
 
@@ -86,6 +151,36 @@ function CalculateHandicap() {
     setHandicap(value)
   }
 
+  const getTeeTileBody = (name, gender) => {
+      if(name.length > 6){
+        if(name.includes('-')){
+            let nameElements = name.split('-');
+            let part1 = nameElements[0].trim(); 
+            let part2 = nameElements.length > 1 ? nameElements[1].trim() : null; 
+            return(
+                <React.Fragment>
+                    {part1 && <Text style={styles.bodyTextSmall}>{`${part1}`}</Text>}
+                    {part2 && <Text style={styles.bodyTextSmall}>{`${part2}`}</Text>}
+                    <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(gender)})`}</Text>
+                </React.Fragment>
+            )
+        }else{
+            return(
+                <React.Fragment>
+                    <Text style={styles.bodyTextSmall}>{`${name}`}</Text>
+                    <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(gender)})`}</Text>
+                </React.Fragment>
+            )
+        }
+      }
+      return(
+          <React.Fragment>
+              <Text style={styles.bodyText}>{`${name}`}</Text>
+              <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(gender)})`}</Text>
+          </React.Fragment>
+      )
+  }
+
   if(!course && !tee && !handicapIndex){
     return(
         <React.Fragment>
@@ -96,15 +191,14 @@ function CalculateHandicap() {
 
   return (
       <React.Fragment>
-           <Header titleText={course.name.split('-')[0].trim()} />
+           <Header titleText={course.name.split('-')[0].trim()} theme={theme} actionIcon="magnify" action={() => navigation.navigate(SCREENS.SEARCH)}/>
             <View style={styles.container}>
                 <Surface style={styles.surface}>
                     <TouchableRipple style={styles.ripple} onPress={() => {showDialog(dialogs.TEES)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Tees`}</Text>
                             <View style={styles.surfaceBody}>
-                                <Text style={styles.bodyText}>{`${course.tees[tee].name}`}</Text>
-                                <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(course.tees[tee].gender)})`}</Text>
+                                {getTeeTileBody(course.tees[tee].name, course.tees[tee].gender)}
                             </View>
                             <Text style={styles.surfaceFooter}>{`Tap to Change`}</Text>
                         </React.Fragment>
@@ -224,64 +318,6 @@ function CalculateHandicap() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 40,
-    flexWrap: 'wrap'
-  },
-  bodyText: {
-    fontSize: 25,
-  },
-  bodyTextSecondary: {
-    fontSize: 10
-  },
-  bodyTextLarge: {
-    fontSize: 30
-  },
-  ripple: {
-    // width: '100%'
-    alignItems: 'center'
-  },
-  surface: {
-    padding: 8,
-    height: 140,
-    width: '45%',
-    alignItems: 'center',
-    elevation: 6,
-    marginBottom: 20
-  },
-  surfaceHeader: {
-    flex: 2,
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  surfaceBody: {
-      flex: 5,
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%'
-  },
-  surfaceFooter: {
-      flex: 1,
-      fontSize: 10
-  },
-  switchView: {
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      flexDirection: 'row',
-      paddingTop: 20,
-  },
-  textInputDialog: {
-      paddingTop: 20,
-  },
-  switchText: {
-    fontSize: 17
-  }
-})
 
-export default CalculateHandicap
+
+export default withTheme(CalculateHandicap)

@@ -12,10 +12,9 @@ import { SCREENS } from '../constants';
 const Tab = createMaterialBottomTabNavigator();
 
 function AppNavigator({ theme, initialScreen }) {
-  
   return (
     <NavigationContainer>
-      <Tab.Navigator barStyle={{ backgroundColor: theme.colors.accent }} initialRouteName={initialScreen}>
+      <Tab.Navigator barStyle={{ backgroundColor: theme.colors.primary }} initialRouteName={initialScreen}>
         <Tab.Screen 
             name={SCREENS.SEARCH} 
             component={FindCourse} 
