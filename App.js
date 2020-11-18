@@ -14,6 +14,8 @@ const theme = {
     ...DefaultTheme.colors,
     primary: '#009B77',
     accent: '#FCE300',
+    text: '#006747',
+    surface: '#f2f2f1'
   },
 };
 const darkTheme = {

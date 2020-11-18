@@ -14,7 +14,7 @@ const Tab = createMaterialBottomTabNavigator();
 function AppNavigator({ theme, initialScreen }) {
   return (
     <NavigationContainer>
-      <Tab.Navigator barStyle={{ backgroundColor: theme.colors.primary }} initialRouteName={initialScreen}>
+      <Tab.Navigator barStyle={{ backgroundColor: theme.colors.primary }} initialRouteName={initialScreen}  activeColor={theme.colors.accent}>
         <Tab.Screen 
             name={SCREENS.SEARCH} 
             component={FindCourse} 
