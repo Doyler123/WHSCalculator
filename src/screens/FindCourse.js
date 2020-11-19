@@ -7,7 +7,7 @@ import courseData from '../data/courses'
 import TeeListItem from '../components/TeeListItem'
 import { useStateValue, actions } from '../state/';
 import { SCREENS } from '../constants'
-import { getCourseDescription } from '../util/dataUtil'
+import { getCourseDescription, getHandicapIndexValue, getHandicapIndexInputValue } from '../util/dataUtil'
 import EmptyScreen from '../components/EmptyScreen'
 
 function FindCourse({ navigation, theme }) {
@@ -86,10 +86,7 @@ function FindCourse({ navigation, theme }) {
   }
 
   const changeHandicap = value => {
-    value = value.replace(/[^0-9.]/g, '')
-    if(value.length > 4){
-        value = value.substring(0, 4);
-    }
+    value = getHandicapIndexInputValue(value)
     setHandicap(value)
   }
 
@@ -98,7 +95,7 @@ function FindCourse({ navigation, theme }) {
         type: actions.NEW_COURSE,
         course: selectedCourse,
         tee: selectedTee,
-        handicapIndex: handicap
+        handicapIndex: getHandicapIndexValue(handicap)
     });
     Keyboard.dismiss();
     navigation.navigate(SCREENS.HANDICAP);
