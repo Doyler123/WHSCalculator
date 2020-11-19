@@ -7,6 +7,7 @@ import { withTheme } from 'react-native-paper';
 
 import FindCourse from '../screens/FindCourse';
 import CalculateHandicap from '../screens/CalculateHandicap';
+import History from '../screens/History';
 import { SCREENS } from '../constants';
 
 const Tab = createMaterialBottomTabNavigator();
@@ -34,7 +35,7 @@ function AppNavigator({ theme, initialScreen }) {
         />
         <Tab.Screen 
             name={SCREENS.HISTORY} 
-            component={CalculateHandicap}
+            component={History}
             options={{
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons name="format-list-bulleted" color={color} size={26} />

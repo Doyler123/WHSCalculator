@@ -8,6 +8,7 @@ import { getTeesGender, calculateCourseHandicap, calculatePlayingHandicap } from
 import { useStateValue, actions } from '../state/';
 import TeeListItem from '../components/TeeListItem';
 import { SCREENS } from '../constants';
+import EmptyScreen from '../components/EmptyScreen'
 
 const dialogs = {
     TEES: 'tees',
@@ -49,14 +50,14 @@ function CalculateHandicap({ navigation, theme }) {
           height: 140,
           width: '45%',
           alignItems: 'center',
-          elevation: 6,
+          elevation: 8,
           marginBottom: 20,
           borderRadius: 15
         },
         surfaceHeader: {
           flex: 2,
-          fontSize: 20,
-          fontWeight: 'bold'
+          fontSize: 19,
+          fontFamily: 'Lusitana_700Bold'
         },
         surfaceBody: {
             flex: 5,
@@ -66,7 +67,8 @@ function CalculateHandicap({ navigation, theme }) {
         },
         surfaceFooter: {
             flex: 1,
-            fontSize: 10
+            fontSize: 10,
+            fontFamily: 'Lusitana_400Regular'
         },
         switchView: {
             justifyContent: 'space-between',
@@ -79,6 +81,9 @@ function CalculateHandicap({ navigation, theme }) {
         },
         switchText: {
           fontSize: 17
+        },
+        dialogStyle: {
+            backgroundColor: theme.colors.background
         }
       })
 
@@ -184,9 +189,15 @@ function CalculateHandicap({ navigation, theme }) {
   if(!course && !tee && !handicapIndex){
     return(
         <React.Fragment>
-            <Header titleText={`No Course Selected`} />
+            <Header titleText="No course selected" actionIcon="magnify" action={() => navigation.navigate(SCREENS.SEARCH)} theme={theme}/>
+            <EmptyScreen 
+                theme={theme}
+                icon={'golf'}
+                text="No course selected"
+                onPress={() => navigation.navigate(SCREENS.SEARCH)}
+            />
         </React.Fragment>
-    ) 
+    )
   }
 
   return (
@@ -256,7 +267,7 @@ function CalculateHandicap({ navigation, theme }) {
                 </Surface>
             </View>
             <Portal>
-                <Dialog visible={dialogVisible} onDismiss={hideDialog}>
+                <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
                     {currentDialog === dialogs.TEES && <React.Fragment>
                         <Dialog.Title>{'Change Tees'}</Dialog.Title>
                         <Dialog.ScrollArea>
@@ -267,6 +278,7 @@ function CalculateHandicap({ navigation, theme }) {
                                         tee={tee}
                                         index={index}
                                         onPress={(i) => {changeTees(i)}}
+                                        theme={theme}
                                     />
                                 )}
                             </ScrollView>
@@ -300,6 +312,7 @@ function CalculateHandicap({ navigation, theme }) {
                         <Dialog.Content>
                             <View style={styles.textInputDialog}>
                                 <TextInput
+                                    autoFocus={true}
                                     label="Handicap Allowance"
                                     value={handicapAllowanceValue}
                                     onChangeText={text => changeHandicapAllowanceValue(text)}

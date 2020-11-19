@@ -8,6 +8,8 @@ import Loading from './src/components/Loading';
 import { keys } from './src/state';
 import { SCREENS } from './src/constants';
 
+import { useFonts, Lusitana_700Bold, Lusitana_400Regular } from '@expo-google-fonts/lusitana';
+
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -15,7 +17,9 @@ const theme = {
     primary: '#009B77',
     accent: '#FCE300',
     text: '#006747',
-    surface: '#f2f2f1'
+    surface: '#fff',
+    background: '#f2f2f1',
+    faded: '#B7B5AF'
   },
 };
 const darkTheme = {
@@ -28,6 +32,11 @@ const darkTheme = {
 };
 
 export default function App() {
+
+  let [fontsLoaded] = useFonts({
+    Lusitana_700Bold,
+    Lusitana_400Regular
+  });
 
   const [ initialState, setInitialState ] = useState({})
 
@@ -64,7 +73,7 @@ export default function App() {
     });
   }, [])
 
-  if(Object.keys(initialState).length <= 0){
+  if(!fontsLoaded || Object.keys(initialState).length <= 0){
     return(
       <PaperProvider>
         <Loading />

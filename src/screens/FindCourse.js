@@ -8,6 +8,7 @@ import TeeListItem from '../components/TeeListItem'
 import { useStateValue, actions } from '../state/';
 import { SCREENS } from '../constants'
 import { getCourseDescription } from '../util/dataUtil'
+import EmptyScreen from '../components/EmptyScreen'
 
 function FindCourse({ navigation, theme }) {
 
@@ -122,6 +123,7 @@ function FindCourse({ navigation, theme }) {
                                                 tee={tee}
                                                 index={index}
                                                 onPress={(i) => {setSelectedTee(i)}}
+                                                theme={theme}
                                             />
                                     )}
                                 </ScrollView>
@@ -157,7 +159,7 @@ function FindCourse({ navigation, theme }) {
                     value={searchQuery}
                     style={styles.searchInput}
                 />
-                <ScrollView>      
+                {courses.length > 0 ? <ScrollView>      
                     {courses.map((course, index) =>
                         <TouchableRipple key={index} onPress={() => selectCourse(course.id)} rippleColor="rgba(0, 0, 0, .32)">
                             <List.Item
@@ -167,7 +169,13 @@ function FindCourse({ navigation, theme }) {
                             />
                         </TouchableRipple> 
                     )}
-                </ScrollView>
+                </ScrollView> : 
+                
+                <EmptyScreen 
+                    theme={theme} 
+                    icon="magnify" 
+                    text={searchQuery ? `No results for '${searchQuery}'` : 'Find a Course'}/>}
+
             </View>
         </Provider>
     </React.Fragment>
