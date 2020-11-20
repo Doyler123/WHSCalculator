@@ -1,7 +1,14 @@
 export default {
-  par: 72,
-  slopeRating: '133',
-  courseRating: '72.4',
+  tees: {
+    "name": "White",
+    "gender": "M",
+    "par": "72",
+    "courseRating": "72.4",
+    "bogeyRating": "97.0",
+    "slopeRating": "133",
+    "front9": "36.2 / 135",
+    "back9": "36.2 / 130"
+  },
   values: [
     {
       "lower": -5,

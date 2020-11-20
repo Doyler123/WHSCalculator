@@ -102,18 +102,14 @@ export const calculateCourseHandicap = (tees, handicapIndex, withCRPar, round) =
 }
 
 export const calculatePlayingHandicap = (tees, handicapIndex, withCRPar, percentage, round) => {
-    let courseHandicap = calculateCourseHandicap(tees, handicapIndex, withCRPar, false);
+    let courseHandicap = calculateCourseHandicap(tees, handicapIndex, withCRPar, true);
 
     if(!isNaN(courseHandicap) && !isNaN(percentage)){
         percentage = parseInt(percentage);
         courseHandicap = parseFloat(courseHandicap);
-        
-        if(round){
-            courseHandicap = Math.round(courseHandicap);
-        }
 
         let playingHandicap = courseHandicap * (percentage / 100);
-        playingHandicap = Math.round(playingHandicap * 10) / 10;
+        playingHandicap = parseFloat(playingHandicap.toFixed(1));
 
         if(round){
             playingHandicap = Math.round(playingHandicap)

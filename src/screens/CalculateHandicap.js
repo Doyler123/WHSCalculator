@@ -258,7 +258,7 @@ function CalculateHandicap({ navigation, theme }) {
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Playing Hcap`}</Text>
                             <View style={styles.surfaceBody}>
-                                <Text style={[styles.bodyText, styles.highlightText]}>{calculatePlayingHandicap(course.tees[tee], handicapIndex, crPar, handicapAllowance, true)}</Text>
+                                <Text style={[styles.bodyText]}>{calculatePlayingHandicap(course.tees[tee], handicapIndex, crPar, handicapAllowance, true)}</Text>
                                 <Text style={styles.bodyTextSecondary}>{`(allowance ${handicapAllowance}%)`}</Text>
                             </View>
                             <Text style={styles.surfaceFooter}>{`Tap to Change`}</Text>

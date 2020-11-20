@@ -76,7 +76,7 @@ export default function App() {
 
   if(!fontsLoaded || Object.keys(initialState).length <= 0){
     return(
-      <PaperProvider>
+      <PaperProvider theme={theme}>
         <Loading />
       </PaperProvider>
     )

@@ -28,12 +28,14 @@
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
+    "jest-expect-message": "^1.0.2",
     "jest-expo": "^39.0.0",
     "react-test-renderer": "^17.0.1"
   },
   "private": true,
   "jest": {
     "preset": "jest-expo",
+    "setupFilesAfterEnv": ["jest-expect-message"],
     "transformIgnorePatterns": [
       "node_modules/(?!(jest-)?react-native|react-clone-referenced-element|@react-native-community|expo(nent)?|@expo(nent)?/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|@sentry/.*)"
     ]
