@@ -1,42 +1,46 @@
-[
+export default {
+  par: 72,
+  slopeRating: '133',
+  courseRating: '72.4',
+  values: [
     {
-      "lower": 5,
-      "upper": 4.7,
-      "courseHandicap": 6,
-      "playingHandicap": 6
+      "lower": -5,
+      "upper": -4.7,
+      "courseHandicap": -6,
+      "playingHandicap": -6
     },
     {
-      "lower": 4.6,
-      "upper": 3.9,
-      "courseHandicap": 5,
-      "playingHandicap": 5
+      "lower": -4.6,
+      "upper": -3.9,
+      "courseHandicap": -5,
+      "playingHandicap": -5
     },
     {
-      "lower": 3.8,
-      "upper": 3,
-      "courseHandicap": 4,
-      "playingHandicap": 4
+      "lower": -3.8,
+      "upper": -3,
+      "courseHandicap": -4,
+      "playingHandicap": -4
     },
     {
-      "lower": 2.9,
-      "upper": 2.2,
-      "courseHandicap": 3,
-      "playingHandicap": 3
+      "lower": -2.9,
+      "upper": -2.2,
+      "courseHandicap": -3,
+      "playingHandicap": -3
     },
     {
-      "lower": 2.1,
-      "upper": 1.3,
-      "courseHandicap": 2,
-      "playingHandicap": 2
+      "lower": -2.1,
+      "upper": -1.3,
+      "courseHandicap": -2,
+      "playingHandicap": -2
     },
     {
-      "lower": 1.2,
-      "upper": 0.5,
-      "courseHandicap": 1,
-      "playingHandicap": 1
+      "lower": -1.2,
+      "upper": -0.5,
+      "courseHandicap": -1,
+      "playingHandicap": -1
     },
     {
-      "lower": 0.4,
+      "lower": -0.4,
       "upper": 0.4,
       "courseHandicap": 0,
       "playingHandicap": 0
@@ -425,4 +429,4 @@
       "courseHandicap": 64,
       "playingHandicap": 61
     }
-   ]
+   ]}
