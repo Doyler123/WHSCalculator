@@ -13,10 +13,9 @@ import { getTeesGender,
      getHandicapDisplayValue, 
      getHoles} from '../util/dataUtil'
 import { useStateValue, actions } from '../state/';
-import TeeListItem from '../components/TeeListItem';
 import { SCREENS, MAX_HANDICAP, MIN_HANDICAP, ERROR_MESSAGES } from '../constants';
 import EmptyScreen from '../components/EmptyScreen'
-import HolesListItem from '../components/HolesListItem'
+import SelectTeesDialog from '../components/SelectTeesDialog'
 
 const dialogs = {
     TEES: 'tees',
@@ -100,7 +99,6 @@ function CalculateHandicap({ navigation, theme }) {
 
   const [{ course, tee, holes, handicapIndex, crPar, handicapAllowance }, dispatch ] = useStateValue();
   
-  const [selectedTee, setSelectedTee] = useState();
   const [handicapAllowanceValue, setHandicapAllowanceValue] = useState(`${handicapAllowance}`);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [currentDialog, setCurrentDialog] = useState();
@@ -114,7 +112,6 @@ function CalculateHandicap({ navigation, theme }) {
   const hideDialog = () => {
       setDialogVisible(false)
       setCurrentDialog(undefined);
-      setSelectedTee(undefined);
   };
 
   const showDialog = (dialog) => {
@@ -122,14 +119,10 @@ function CalculateHandicap({ navigation, theme }) {
       setDialogVisible(true)
   };
   
-  const changeTees = (index) => {
-    setSelectedTee(index);
-  }
-  
-  const changeHoles = (holes) => {
+  const changeHoles = (tees, holes) => {
     dispatch({
         type: actions.CHANGE_TEE,
-        tee: selectedTee,
+        tee: tees,
         holes: holes
     })
     hideDialog();
@@ -290,79 +283,66 @@ function CalculateHandicap({ navigation, theme }) {
                 </Surface>
             </View>
             <Portal>
-                <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
-                    {currentDialog === dialogs.TEES && <React.Fragment>
-                        <Dialog.Title>{'Change Tees'}</Dialog.Title>
-                        <Dialog.ScrollArea>
-                            <ScrollView contentContainerStyle={{paddingHorizontal: 10}}>
-                                {selectedTee === undefined && course && course.tees.map((tee, index) => 
-                                    <TeeListItem 
-                                        key={index}
-                                        tee={tee}
-                                        index={index}
-                                        onPress={(i) => {changeTees(i)}}
-                                        theme={theme}
+                    {currentDialog === dialogs.TEES && 
+                        <SelectTeesDialog 
+                            theme={theme}
+                            dialogVisible={dialogVisible}
+                            hideDialog={hideDialog}
+                            course={course}
+                            onSelect={(tees, holes) => changeHoles(tees, holes)}
+                        />
+                    }
+                    {currentDialog === dialogs.HANDICAP_INDEX && 
+                        <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
+                            <Dialog.Content>
+                                <View style={styles.textInputDialog}>
+                                    <TextInput
+                                        autoFocus={true}
+                                        label={!!handicapError ? handicapError : "Handicap Index"}
+                                        value={handicap}
+                                        error={!!handicapError}
+                                        placeholder={"Handicap Index"}
+                                        onChangeText={text => changeHandicap(text)}
+                                        keyboardType={"number-pad"}
                                     />
-                                )}
-                                {selectedTee !== undefined && course && 
-                                    getHoles(course.tees[selectedTee]).map((holes, index) => 
-                                        <HolesListItem 
-                                            key={index}
-                                            holes={holes}
-                                            onPress={(h) => {changeHoles(h)}}
-                                            theme={theme}
-                                        />
-                                    )
-                                }
-                            </ScrollView>
-                        </Dialog.ScrollArea>
-                    </React.Fragment>}
-                    {currentDialog === dialogs.HANDICAP_INDEX && <React.Fragment>
-                        <Dialog.Content>
-                            <View style={styles.textInputDialog}>
-                                <TextInput
-                                    autoFocus={true}
-                                    label={!!handicapError ? handicapError : "Handicap Index"}
-                                    value={handicap}
-                                    error={!!handicapError}
-                                    placeholder={"Handicap Index"}
-                                    onChangeText={text => changeHandicap(text)}
-                                    keyboardType={"number-pad"}
-                                />
-                            </View>
-                        </Dialog.Content>
-                        <Dialog.Actions>
-                            <Button onPress={() => hideDialog()}>Cancel</Button>
-                            <Button onPress={() => changeHandicapIndex(handicap)}>Ok</Button>
-                        </Dialog.Actions>
-                    </React.Fragment>}
-                    {currentDialog === dialogs.COURSE_HANDICAP && <React.Fragment>
-                        <Dialog.Content>
-                            <View style={styles.switchView}>
-                                <Text style={styles.switchText}>{'Course Rating - Par'}</Text>
-                                <Switch value={crPar} onValueChange={() => changeCRPar(!crPar)} />
-                            </View>
-                        </Dialog.Content>
-                    </React.Fragment>}
-                    {currentDialog === dialogs.PLAYING_HANDICAP && <React.Fragment>
-                        <Dialog.Content>
-                            <View style={styles.textInputDialog}>
-                                <TextInput
-                                    autoFocus={true}
-                                    label={"Handicap Allowance"}
-                                    value={handicapAllowanceValue}
-                                    onChangeText={text => changeHandicapAllowanceValue(text)}
-                                    right={<TextInput.Affix text="%" textStyle={{fontSize: 20}}/>}
-                                    keyboardType={"number-pad"}
-                                />
-                            </View>
-                        </Dialog.Content>
-                        <Dialog.Actions>
-                            <Button onPress={() => hideDialog()}>Cancel</Button>
-                            <Button onPress={() => changeHandicapAllowance(handicapAllowanceValue)}>Ok</Button>
-                        </Dialog.Actions>
-                    </React.Fragment>}
-                </Dialog>
+                                </View>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={() => hideDialog()}>Cancel</Button>
+                                <Button onPress={() => changeHandicapIndex(handicap)}>Ok</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    }
+                    {currentDialog === dialogs.COURSE_HANDICAP && 
+                        <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
+                            <Dialog.Content>
+                                <View style={styles.switchView}>
+                                    <Text style={styles.switchText}>{'Course Rating - Par'}</Text>
+                                    <Switch value={crPar} onValueChange={() => changeCRPar(!crPar)} />
+                                </View>
+                            </Dialog.Content>
+                        </Dialog>
+                    }
+                    {currentDialog === dialogs.PLAYING_HANDICAP && 
+                        <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
+                            <Dialog.Content>
+                                <View style={styles.textInputDialog}>
+                                    <TextInput
+                                        autoFocus={true}
+                                        label={"Handicap Allowance"}
+                                        value={handicapAllowanceValue}
+                                        onChangeText={text => changeHandicapAllowanceValue(text)}
+                                        right={<TextInput.Affix text="%" textStyle={{fontSize: 20}}/>}
+                                        keyboardType={"number-pad"}
+                                    />
+                                </View>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={() => hideDialog()}>Cancel</Button>
+                                <Button onPress={() => changeHandicapAllowance(handicapAllowanceValue)}>Ok</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    }
             </Portal>
       </React.Fragment>
   )

@@ -42,6 +42,7 @@ export default function App() {
   const [ initialState, setInitialState ] = useState({})
 
   const getInitialState = async () => {
+    // AsyncStorage.clear()
     let state = {}
     try {
       let course = await AsyncStorage.getItem(keys.COURSE);
