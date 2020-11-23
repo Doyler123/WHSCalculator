@@ -4,11 +4,19 @@ import { StyleSheet, View, ScrollView } from 'react-native'
 import { Dialog, Portal, Text, Surface, TouchableRipple, Switch, TextInput, Button, withTheme } from 'react-native-paper'
 
 import Header from '../components/Header'
-import { getTeesGender, getHandicapIndexInputValue, getHandicapIndexValue, getHandicapIndexDisplayValue, calculateCourseHandicap, calculatePlayingHandicap } from '../util/dataUtil'
+import { getTeesGender,
+     getHandicapIndexInputValue, 
+     getHandicapIndexValue, 
+     getHandicapIndexDisplayValue, 
+     calculateCourseHandicap, 
+     calculatePlayingHandicap,
+     getHandicapDisplayValue, 
+     getHoles} from '../util/dataUtil'
 import { useStateValue, actions } from '../state/';
 import TeeListItem from '../components/TeeListItem';
-import { SCREENS } from '../constants';
+import { SCREENS, MAX_HANDICAP, MIN_HANDICAP, ERROR_MESSAGES } from '../constants';
 import EmptyScreen from '../components/EmptyScreen'
+import HolesListItem from '../components/HolesListItem'
 
 const dialogs = {
     TEES: 'tees',
@@ -90,12 +98,14 @@ function CalculateHandicap({ navigation, theme }) {
         }
       })
 
-  const [{ course, tee, handicapIndex, crPar, handicapAllowance }, dispatch ] = useStateValue();
-
+  const [{ course, tee, holes, handicapIndex, crPar, handicapAllowance }, dispatch ] = useStateValue();
+  
+  const [selectedTee, setSelectedTee] = useState();
   const [handicapAllowanceValue, setHandicapAllowanceValue] = useState(`${handicapAllowance}`);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [currentDialog, setCurrentDialog] = useState();
   const [handicap, setHandicap] = useState(handicapIndex);
+  const [handicapError, setHandicapError] = useState('');
 
   useEffect(() => {
     setHandicap(handicapIndex)
@@ -104,6 +114,7 @@ function CalculateHandicap({ navigation, theme }) {
   const hideDialog = () => {
       setDialogVisible(false)
       setCurrentDialog(undefined);
+      setSelectedTee(undefined);
   };
 
   const showDialog = (dialog) => {
@@ -112,9 +123,14 @@ function CalculateHandicap({ navigation, theme }) {
   };
   
   const changeTees = (index) => {
+    setSelectedTee(index);
+  }
+  
+  const changeHoles = (holes) => {
     dispatch({
         type: actions.CHANGE_TEE,
-        tee: index
+        tee: selectedTee,
+        holes: holes
     })
     hideDialog();
   }
@@ -136,11 +152,17 @@ function CalculateHandicap({ navigation, theme }) {
   }
   
   const changeHandicapIndex = (handicapIndex) => {
-    dispatch({
-        type: actions.SET_HANDICAP_INDEX,
-        handicapIndex: getHandicapIndexValue(handicapIndex)
-    })
-    hideDialog();
+    let value = getHandicapIndexValue(handicapIndex);
+    if(!isNaN(value) && parseFloat(value) <= MAX_HANDICAP && parseFloat(value) >= MIN_HANDICAP){
+        dispatch({
+            type: actions.SET_HANDICAP_INDEX,
+            handicapIndex: value
+        })
+        hideDialog();
+    }else{
+        setHandicap('');
+        setHandicapError(ERROR_MESSAGES.HANDICAP_INPUT_ERROR)
+    }
   }
   
   const changeHandicapAllowanceValue = (value) => {
@@ -152,11 +174,12 @@ function CalculateHandicap({ navigation, theme }) {
   }
 
   const changeHandicap = value => {
+    setHandicapError('');  
     value = getHandicapIndexInputValue(value);
-    setHandicap(value)
+    setHandicap(value);
   }
 
-  const getTeeTileBody = (name, gender) => {
+  const getTeeTileBody = (name, gender, holes) => {
       if(name.length > 6){
         if(name.includes('-')){
             let nameElements = name.split('-');
@@ -166,14 +189,14 @@ function CalculateHandicap({ navigation, theme }) {
                 <React.Fragment>
                     {part1 && <Text style={styles.bodyTextSmall}>{`${part1}`}</Text>}
                     {part2 && <Text style={styles.bodyTextSmall}>{`${part2}`}</Text>}
-                    <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(gender)})`}</Text>
+                    <Text style={styles.bodyTextSecondary}>{`(${holes.name} - ${getTeesGender(gender)})`}</Text>
                 </React.Fragment>
             )
         }else{
             return(
                 <React.Fragment>
                     <Text style={styles.bodyTextSmall}>{`${name}`}</Text>
-                    <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(gender)})`}</Text>
+                    <Text style={styles.bodyTextSecondary}>{`(${holes.name} - ${getTeesGender(gender)})`}</Text>
                 </React.Fragment>
             )
         }
@@ -181,7 +204,7 @@ function CalculateHandicap({ navigation, theme }) {
       return(
           <React.Fragment>
               <Text style={styles.bodyText}>{`${name}`}</Text>
-              <Text style={styles.bodyTextSecondary}>{`(${getTeesGender(gender)})`}</Text>
+              <Text style={styles.bodyTextSecondary}>{`(${holes.name} - ${getTeesGender(gender)})`}</Text>
           </React.Fragment>
       )
   }
@@ -209,7 +232,7 @@ function CalculateHandicap({ navigation, theme }) {
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Tees`}</Text>
                             <View style={styles.surfaceBody}>
-                                {getTeeTileBody(course.tees[tee].name, course.tees[tee].gender)}
+                                {getTeeTileBody(course.tees[tee].name, course.tees[tee].gender, holes)}
                             </View>
                             <Text style={styles.surfaceFooter}>{`Tap to Change`}</Text>
                         </React.Fragment>
@@ -229,15 +252,15 @@ function CalculateHandicap({ navigation, theme }) {
                 <Surface style={styles.surface}>
                     <Text style={styles.surfaceHeader}>{`Slope`}</Text>
                     <View style={styles.surfaceBody}>
-                        <Text style={styles.bodyTextLarge}>{`${course.tees[tee].slopeRating}`}</Text>
+                        <Text style={styles.bodyTextLarge}>{`${holes.slopeRating}`}</Text>
                     </View>
                     <Text style={styles.surfaceFooter}>{``}</Text>
                 </Surface>
                 <Surface style={styles.surface}>
                     <Text style={styles.surfaceHeader}>{`Course Rating`}</Text>
                     <View style={styles.surfaceBody}>
-                        <Text style={styles.bodyTextLarge}>{`${course.tees[tee].courseRating}`}</Text>
-                        <Text style={styles.bodyTextSecondary}>{`(Par ${course.tees[tee].par})`}</Text>
+                        <Text style={styles.bodyTextLarge}>{`${holes.courseRating}`}</Text>
+                        <Text style={styles.bodyTextSecondary}>{`(Par ${holes.par})`}</Text>
                     </View>
                     <Text style={styles.surfaceFooter}>{``}</Text>
                 </Surface>
@@ -246,7 +269,7 @@ function CalculateHandicap({ navigation, theme }) {
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Course Hcap`}</Text>
                             <View style={styles.surfaceBody}>
-                                <Text style={styles.bodyText}>{calculateCourseHandicap(course.tees[tee], handicapIndex, crPar, true)}</Text>
+                                <Text style={styles.bodyText}>{getHandicapDisplayValue(calculateCourseHandicap(holes, handicapIndex, crPar, true))}</Text>
                                 <Text style={styles.bodyTextSecondary}>{`(${ crPar ? 'with' : 'without'} CR - Par)`}</Text>
                             </View>
                             <Text style={styles.surfaceFooter}>{`Tap to Change`}</Text>
@@ -258,7 +281,7 @@ function CalculateHandicap({ navigation, theme }) {
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Playing Hcap`}</Text>
                             <View style={styles.surfaceBody}>
-                                <Text style={[styles.bodyText]}>{calculatePlayingHandicap(course.tees[tee], handicapIndex, crPar, handicapAllowance, true)}</Text>
+                                <Text style={[styles.bodyText]}>{getHandicapDisplayValue(calculatePlayingHandicap(holes, handicapIndex, crPar, handicapAllowance, true))}</Text>
                                 <Text style={styles.bodyTextSecondary}>{`(allowance ${handicapAllowance}%)`}</Text>
                             </View>
                             <Text style={styles.surfaceFooter}>{`Tap to Change`}</Text>
@@ -272,7 +295,7 @@ function CalculateHandicap({ navigation, theme }) {
                         <Dialog.Title>{'Change Tees'}</Dialog.Title>
                         <Dialog.ScrollArea>
                             <ScrollView contentContainerStyle={{paddingHorizontal: 10}}>
-                                {course && course.tees.map((tee, index) => 
+                                {selectedTee === undefined && course && course.tees.map((tee, index) => 
                                     <TeeListItem 
                                         key={index}
                                         tee={tee}
@@ -281,6 +304,16 @@ function CalculateHandicap({ navigation, theme }) {
                                         theme={theme}
                                     />
                                 )}
+                                {selectedTee !== undefined && course && 
+                                    getHoles(course.tees[selectedTee]).map((holes, index) => 
+                                        <HolesListItem 
+                                            key={index}
+                                            holes={holes}
+                                            onPress={(h) => {changeHoles(h)}}
+                                            theme={theme}
+                                        />
+                                    )
+                                }
                             </ScrollView>
                         </Dialog.ScrollArea>
                     </React.Fragment>}
@@ -289,9 +322,12 @@ function CalculateHandicap({ navigation, theme }) {
                             <View style={styles.textInputDialog}>
                                 <TextInput
                                     autoFocus={true}
-                                    label="Handicap Index"
+                                    label={!!handicapError ? handicapError : "Handicap Index"}
                                     value={handicap}
+                                    error={!!handicapError}
+                                    placeholder={"Handicap Index"}
                                     onChangeText={text => changeHandicap(text)}
+                                    keyboardType={"number-pad"}
                                 />
                             </View>
                         </Dialog.Content>
@@ -313,10 +349,11 @@ function CalculateHandicap({ navigation, theme }) {
                             <View style={styles.textInputDialog}>
                                 <TextInput
                                     autoFocus={true}
-                                    label="Handicap Allowance"
+                                    label={"Handicap Allowance"}
                                     value={handicapAllowanceValue}
                                     onChangeText={text => changeHandicapAllowanceValue(text)}
                                     right={<TextInput.Affix text="%" textStyle={{fontSize: 20}}/>}
+                                    keyboardType={"number-pad"}
                                 />
                             </View>
                         </Dialog.Content>

@@ -6,9 +6,10 @@ import Header from '../components/Header'
 import courseData from '../data/courses'
 import TeeListItem from '../components/TeeListItem'
 import { useStateValue, actions } from '../state/';
-import { SCREENS } from '../constants'
-import { getCourseDescription, getHandicapIndexValue, getHandicapIndexInputValue } from '../util/dataUtil'
+import { SCREENS, MIN_HANDICAP, MAX_HANDICAP, ERROR_MESSAGES } from '../constants'
+import { getCourseDescription, getHandicapIndexValue, getHandicapIndexInputValue, getHoles, createHistoryItem } from '../util/dataUtil'
 import EmptyScreen from '../components/EmptyScreen'
+import HolesListItem from '../components/HolesListItem'
 
 function FindCourse({ navigation, theme }) {
 
@@ -47,8 +48,10 @@ function FindCourse({ navigation, theme }) {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState();
   const [selectedTee, setSelectedTee] = useState();
+  const [selectedHoles, setSelectedHoles] = useState();
   const [handicap, setHandicap] = useState(handicapIndex);
   const [visible, setVisible] = React.useState(false);
+  const [handicapError, setHandicapError] = useState('');
 
   useEffect(() => {
     setHandicap(handicapIndex)
@@ -70,11 +73,12 @@ function FindCourse({ navigation, theme }) {
   const hideModal = () => {
     setSelectedCourse(undefined);
     setSelectedTee(undefined);
+    setSelectedHoles(undefined);
     setHandicap(handicapIndex)
     setVisible(false);
   };
 
-  const containerStyle = {backgroundColor: 'white', padding: 20 };
+  const containerStyle = { padding: 20,  };
 
   const selectCourse = id => {
       if(id){
@@ -86,35 +90,43 @@ function FindCourse({ navigation, theme }) {
   }
 
   const changeHandicap = value => {
+    setHandicapError('');
     value = getHandicapIndexInputValue(value)
     setHandicap(value)
   }
 
   const onClickCalculate = () => {
-    dispatch({
-        type: actions.NEW_COURSE,
-        course: selectedCourse,
-        tee: selectedTee,
-        handicapIndex: getHandicapIndexValue(handicap)
-    });
-    Keyboard.dismiss();
-    navigation.navigate(SCREENS.HANDICAP);
-    setSearchQuery('');
-    setCourses([]);
-    hideModal();
+    let value = getHandicapIndexValue(handicap);
+    if(!isNaN(value) && parseFloat(value) <= MAX_HANDICAP && parseFloat(value) >= MIN_HANDICAP){
+        dispatch({
+            type: actions.NEW_COURSE,
+            course: selectedCourse,
+            tee: selectedTee,
+            holes: selectedHoles,
+            handicapIndex: getHandicapIndexValue(handicap)
+        });
+        Keyboard.dismiss();
+        navigation.navigate(SCREENS.HANDICAP);
+        setSearchQuery('');
+        setCourses([]);
+        hideModal();
+    }else{
+        setHandicap('');
+        setHandicapError(ERROR_MESSAGES.HANDICAP_INPUT_ERROR)
+    }
   }
 
   return (
     <React.Fragment>
         <Provider>
             <Portal>
-                <Dialog visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-                    {selectedTee === undefined && selectedCourse &&
+                <Dialog visible={visible} onDismiss={hideModal} style={{backgroundColor: theme.colors.background}} contentContainerStyle={containerStyle}>
+                    {selectedHoles === undefined && selectedCourse &&
                         <React.Fragment>
-                            <Dialog.Title>{'Select Tees'}</Dialog.Title>
-                            <Dialog.ScrollArea>
+                            <Dialog.Title style={{color: theme.colors.text}}>{'Select Tees'}</Dialog.Title>
+                            <Dialog.ScrollArea >
                                 <ScrollView contentContainerStyle={{paddingHorizontal: 10}}>
-                                    {selectedCourse.tees.map((tee, index) =>
+                                    {selectedTee === undefined && selectedCourse.tees.map((tee, index) =>
                                             <TeeListItem 
                                                 key={index}
                                                 tee={tee}
@@ -123,20 +135,33 @@ function FindCourse({ navigation, theme }) {
                                                 theme={theme}
                                             />
                                     )}
+                                    {selectedTee !== undefined &&
+                                        getHoles(selectedCourse.tees[selectedTee]).map((holes, index) => 
+                                            <HolesListItem 
+                                                 key={index}
+                                                 holes={holes}
+                                                 onPress={(h) => {setSelectedHoles(h)}}
+                                                 theme={theme}
+                                            />
+                                        )
+                                    }
                                 </ScrollView>
                             </Dialog.ScrollArea>
                         </React.Fragment>
                     }
 
-                    {selectedTee !== undefined && selectedCourse && 
+                    {selectedHoles !== undefined && selectedCourse && 
                         <React.Fragment>
                             <Dialog.Content>
                                 <View style={styles.textInputDialog}>
                                     <TextInput
                                         autoFocus={true}
-                                        label="Handicap Index"
+                                        label={!!handicapError ? handicapError : "Handicap Index"}
                                         value={handicap}
+                                        error={!!handicapError}
+                                        placeholder={"Handicap Index"}
                                         onChangeText={text => changeHandicap(text)}
+                                        keyboardType={"number-pad"}
                                     />
                                 </View>
                             </Dialog.Content>
@@ -156,17 +181,18 @@ function FindCourse({ navigation, theme }) {
                     value={searchQuery}
                     style={styles.searchInput}
                 />
-                {courses.length > 0 ? <ScrollView>      
-                    {courses.map((course, index) =>
-                        <TouchableRipple key={index} onPress={() => selectCourse(course.id)} rippleColor="rgba(0, 0, 0, .32)">
-                            <List.Item
-                                title={course.name.split('-')[0].trim()}
-                                description={getCourseDescription(course.name, course.city, course.state)}
-                                left={props => <List.Icon {...props} icon="golf"/>}
-                            />
-                        </TouchableRipple> 
-                    )}
-                </ScrollView> : 
+                {courses.length > 0 ? 
+                    <ScrollView>      
+                        {courses.map((course, index) =>
+                            <TouchableRipple key={index} onPress={() => selectCourse(course.id)} rippleColor="rgba(0, 0, 0, .32)">
+                                <List.Item
+                                    title={course.name.split('-')[0].trim()}
+                                    description={getCourseDescription(course.name, course.city, course.state)}
+                                    left={props => <List.Icon {...props} icon="golf"/>}
+                                />
+                            </TouchableRipple> 
+                        )}
+                    </ScrollView> : 
                 
                 <EmptyScreen 
                     theme={theme} 

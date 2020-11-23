@@ -6,12 +6,13 @@ import { FontAwesome5 } from '@expo/vector-icons';
 export default function TeeListItem({ tee, index, onPress, theme }){
 
     const getTeeColor = (name) => {
-        let key = Object.keys(Colors).find(color => color.toLocaleLowerCase().includes(name.toLocaleLowerCase()))
+        name = name.split('-')[0].split(' ')[0].trim().toLocaleLowerCase();
+        let key = Object.keys(Colors).find(color => color.toLocaleLowerCase().includes(name))
         if(key){
             if(key !== 'black' && key !== 'white'){
-                key = `${name.toLocaleLowerCase()}200`;
+                key = `${name}200`;
                 if(key in Colors){
-                    return Colors[`${name.toLocaleLowerCase()}200`];
+                    return Colors[`${name}200`];
                 }
             }
         }
@@ -21,6 +22,8 @@ export default function TeeListItem({ tee, index, onPress, theme }){
     return(
         <TouchableRipple onPress={() => { onPress(index) }} rippleColor="rgba(0, 0, 0, .32)">
             <List.Item
+                titleStyle={{color: theme.colors.text}}
+                descriptionStyle={{color: theme.colors.text}}
                 title={`${tee.name} - ${getTeesGender(tee.gender)}`}
                 description={`Slope:  ${tee.slopeRating}`}
                 left={props => <List.Icon {...props} icon={({ color }) => (

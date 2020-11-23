@@ -48,21 +48,27 @@ export default function App() {
       state.course = course != null ? JSON.parse(course) : undefined;
       let tee = await AsyncStorage.getItem(keys.TEE);
       state.tee = tee != null ? parseInt(tee) : undefined;
+      let holes = await AsyncStorage.getItem(keys.HOLES);
+      state.holes = holes != null ? JSON.parse(holes) : undefined;
       let handicapIndex = await AsyncStorage.getItem(keys.HANDICAP_INDEX);
       state.handicapIndex = handicapIndex != null ? handicapIndex : undefined;
       let crPar = await AsyncStorage.getItem(keys.CR_PAR);
       state.crPar = crPar === 'true';
       let handicapAllowance = await AsyncStorage.getItem(keys.HANDICAP_ALLOWANCE);
       state.handicapAllowance = handicapAllowance != null ? parseInt(handicapAllowance) : 95;
+      let history = await AsyncStorage.getItem(keys.HISTORY);
+      state.history = history != null ? JSON.parse(history) : [];
       return state
     } catch(e) {
       console.error(e)
       state = {
         course: undefined,
         tee: undefined,
+        holes: undefined,
         handicapIndex: undefined,
         crPar: false,
-        handicapAllowance: 95
+        handicapAllowance: 95,
+        history: []
       }
       return state
     }

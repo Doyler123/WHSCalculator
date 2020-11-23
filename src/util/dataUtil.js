@@ -51,7 +51,6 @@ export const getHandicapIndexInputValue = (value) => {
 }
 
 export const getHandicapIndexValue = (value) => {
-    console.log(value)
     if(value){
         if(!isNaN(value)){
             if(value.startsWith('+')){
@@ -119,4 +118,58 @@ export const calculatePlayingHandicap = (tees, handicapIndex, withCRPar, percent
     }
 
     return courseHandicap;
+}
+
+export const getHandicapDisplayValue = (handicap) => {
+    return handicap.replace('-', '+');
+}
+
+const getNumHoles = (par) => {
+    if(!isNaN(par)){
+        if(parseInt(par) > 50){
+            return '18';
+        }else{
+            return '9';
+        }
+    }
+    return 'N/A'
+}
+
+export const getHoles = (tees) => {
+    const holes = [];
+
+    holes.push({
+        name: `${getNumHoles(tees.par)} Holes`,
+        par: tees.par,
+        slopeRating: tees.slopeRating,
+        courseRating: tees.courseRating
+    })
+    
+    if(!isNaN(tees.par) && parseInt(tees.par) > 50){
+        let nines = [tees.front9, tees.back9]
+    
+        nines.forEach((nine, index) => {
+            let nineElements = nine.trim().split('/');
+            if(nineElements.length > 1 && nineElements[0]){
+                holes.push({
+                    name: `${index > 0 ? 'Back' : 'Front'} 9`,
+                    par: '36',
+                    slopeRating: nineElements[1],
+                    courseRating: nineElements[0]
+                })
+            }
+        })
+    }
+
+    return holes;
+}
+
+export const createHistoryItem = (course, tee, holes) => {
+    const tees = course.tees[tee]
+    return {
+        courseId: course.id,
+        name: course.name.split('-')[0].trim(),
+        description: `${tees.name} - ${getTeesGender(tees.gender)}`,
+        info: `Par: ${holes.par} Slope: ${holes.slopeRating} CR: ${holes.courseRating}`
+    }
 }
