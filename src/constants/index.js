@@ -13,10 +13,3 @@ export const ERROR_MESSAGES = {
 }
 
 export const MAX_HISTORY = 20;
-
-export const DATA_TILES = {
-    TEES: 'tees',
-    HANDICAP_INDEX: 'hi',
-    COURSE_HANDICAP: 'ch',
-    PLAYING_HANDICAP: 'ph',
-}

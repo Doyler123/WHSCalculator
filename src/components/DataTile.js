@@ -2,9 +2,6 @@ import React from 'react';
 import { StyleSheet, View } from "react-native";
 import { Text, TouchableRipple, Surface } from 'react-native-paper';
 
-import { getTeesGender } from '../util/dataUtil'
-import { DATA_TILES } from '../constants';
-
 const DataTile = ({ theme, title, bodyText, bodyTextLine2, bodyTextSecondary, largeText, smallText, onClickChange }) => {
     
     const styles = StyleSheet.create({
@@ -56,13 +53,11 @@ const DataTile = ({ theme, title, bodyText, bodyTextLine2, bodyTextSecondary, la
                 <React.Fragment>
                     <Text style={styles.surfaceHeader}>{title}</Text>
                     <View style={styles.surfaceBody}>
-                        {!bodyElement && 
-                            <View style={styles.surfaceBody}>
-                                <Text style={largeText ? styles.bodyTextLarge : smallText ? styles.bodyTextSmall:  styles.bodyText}>{bodyText}</Text>
-                                {bodyTextLine2 && <Text style={largeText ? styles.bodyTextLarge : smallText ? styles.bodyTextSmall:  styles.bodyText}>{bodyText}</Text>}
-                                {bodyTextSecondary && <Text style={styles.bodyTextSecondary}>{bodyTextSecondary}</Text>}
-                            </View>
-                        }
+                        <View style={styles.surfaceBody}>
+                            <Text style={largeText ? styles.bodyTextLarge : smallText ? styles.bodyTextSmall:  styles.bodyText}>{bodyText}</Text>
+                            {bodyTextLine2 && <Text style={largeText ? styles.bodyTextLarge : smallText ? styles.bodyTextSmall: styles.bodyText}>{bodyTextLine2}</Text>}
+                            {bodyTextSecondary && <Text style={styles.bodyTextSecondary}>{bodyTextSecondary}</Text>}
+                        </View>
                     </View>
                     <Text style={styles.surfaceFooter}>{onClickChange ? `Tap to Change` : ``}</Text>
                 </React.Fragment>

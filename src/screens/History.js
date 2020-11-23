@@ -24,7 +24,9 @@ function History({ navigation, theme }) {
   return(
     <React.Fragment>
       <Header titleText={`History`} theme={theme}/>
-      <ScrollView>      
+      <ScrollView>
+        <List.Section>
+          <List.Subheader>Recent Courses</List.Subheader>
           {history.slice(0).reverse().map((historyItem, index) => {
               let item = createHistoryItem(historyItem.course, historyItem.tee, historyItem.holes)
               return(
@@ -38,6 +40,7 @@ function History({ navigation, theme }) {
               )
             } 
           )}
+        </List.Section>    
       </ScrollView>
     </React.Fragment>
   )
