@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView } from 'react-native'
 import { Dialog } from 'react-native-paper'
 
@@ -7,9 +7,15 @@ import HolesListItem from '../components/HolesListItem'
 import { getHoles} from '../util/dataUtil'
 
 
-export default function SelectTeesDialog({theme, dialogVisible, hideDialog, course, onSelect}){
+export default function SelectTeesDialog({theme, title, dialogVisible, hideDialog, course, onSelect}){
 
     const [selectedTee, setSelectedTee] = useState();
+
+    useEffect(() => {
+        if(!dialogVisible){
+            setSelectedTee(undefined);
+        }
+    }, [dialogVisible])
 
     const styles = StyleSheet.create({
         dialogStyle: {
@@ -23,7 +29,7 @@ export default function SelectTeesDialog({theme, dialogVisible, hideDialog, cour
     return(
         <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
             <React.Fragment>
-                <Dialog.Title>{'Change Tees'}</Dialog.Title>
+                <Dialog.Title>{title}</Dialog.Title>
                 <Dialog.ScrollArea>
                     <ScrollView contentContainerStyle={styles.scrollViewStyle}>
                         {selectedTee === undefined && course && course.tees.map((tee, index) => 

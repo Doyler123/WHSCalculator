@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Dialog, Portal, Text, Surface, TouchableRipple, Switch, TextInput, Button, withTheme } from 'react-native-paper'
 
 import Header from '../components/Header'
@@ -10,19 +10,13 @@ import { getTeesGender,
      getHandicapIndexDisplayValue, 
      calculateCourseHandicap, 
      calculatePlayingHandicap,
-     getHandicapDisplayValue, 
-     getHoles} from '../util/dataUtil'
+     getHandicapDisplayValue } from '../util/dataUtil'
 import { useStateValue, actions } from '../state/';
-import { SCREENS, MAX_HANDICAP, MIN_HANDICAP, ERROR_MESSAGES } from '../constants';
+import { SCREENS, DATA_TILES } from '../constants';
 import EmptyScreen from '../components/EmptyScreen'
 import SelectTeesDialog from '../components/SelectTeesDialog'
-
-const dialogs = {
-    TEES: 'tees',
-    HANDICAP_INDEX: 'hi',
-    COURSE_HANDICAP: 'ch',
-    PLAYING_HANDICAP: 'ph',
-}
+import HandicapIndexDialog from '../components/HandicapIndexDialog'
+import DataTile from '../components/DataTile'
 
 function CalculateHandicap({ navigation, theme }) {
 
@@ -49,7 +43,6 @@ function CalculateHandicap({ navigation, theme }) {
           fontSize: 20
         },
         ripple: {
-          // width: '100%'
           alignItems: 'center'
         },
         surface: {
@@ -102,12 +95,6 @@ function CalculateHandicap({ navigation, theme }) {
   const [handicapAllowanceValue, setHandicapAllowanceValue] = useState(`${handicapAllowance}`);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [currentDialog, setCurrentDialog] = useState();
-  const [handicap, setHandicap] = useState(handicapIndex);
-  const [handicapError, setHandicapError] = useState('');
-
-  useEffect(() => {
-    setHandicap(handicapIndex)
-  }, [handicapIndex])
 
   const hideDialog = () => {
       setDialogVisible(false)
@@ -119,7 +106,7 @@ function CalculateHandicap({ navigation, theme }) {
       setDialogVisible(true)
   };
   
-  const changeHoles = (tees, holes) => {
+  const changeTees = (tees, holes) => {
     dispatch({
         type: actions.CHANGE_TEE,
         tee: tees,
@@ -144,18 +131,12 @@ function CalculateHandicap({ navigation, theme }) {
     hideDialog();
   }
   
-  const changeHandicapIndex = (handicapIndex) => {
-    let value = getHandicapIndexValue(handicapIndex);
-    if(!isNaN(value) && parseFloat(value) <= MAX_HANDICAP && parseFloat(value) >= MIN_HANDICAP){
-        dispatch({
-            type: actions.SET_HANDICAP_INDEX,
-            handicapIndex: value
-        })
-        hideDialog();
-    }else{
-        setHandicap('');
-        setHandicapError(ERROR_MESSAGES.HANDICAP_INPUT_ERROR)
-    }
+  const changeHandicapIndex = (value) => {
+    dispatch({
+        type: actions.SET_HANDICAP_INDEX,
+        handicapIndex: value
+    })
+    hideDialog();
   }
   
   const changeHandicapAllowanceValue = (value) => {
@@ -164,12 +145,6 @@ function CalculateHandicap({ navigation, theme }) {
           value = value.substring(0, 3);
       }
       setHandicapAllowanceValue(value);
-  }
-
-  const changeHandicap = value => {
-    setHandicapError('');  
-    value = getHandicapIndexInputValue(value);
-    setHandicap(value);
   }
 
   const getTeeTileBody = (name, gender, holes) => {
@@ -221,7 +196,7 @@ function CalculateHandicap({ navigation, theme }) {
            <Header titleText={course.name.split('-')[0].trim()} theme={theme} actionIcon="magnify" action={() => navigation.navigate(SCREENS.SEARCH)}/>
             <View style={styles.container}>
                 <Surface style={styles.surface}>
-                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(dialogs.TEES)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
+                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(DATA_TILES.TEES)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Tees`}</Text>
                             <View style={styles.surfaceBody}>
@@ -232,7 +207,7 @@ function CalculateHandicap({ navigation, theme }) {
                     </TouchableRipple>
                 </Surface>
                 <Surface style={styles.surface}>
-                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(dialogs.HANDICAP_INDEX)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
+                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(DATA_TILES.HANDICAP_INDEX)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Hcap Index`}</Text>
                             <View style={styles.surfaceBody}>
@@ -258,7 +233,7 @@ function CalculateHandicap({ navigation, theme }) {
                     <Text style={styles.surfaceFooter}>{``}</Text>
                 </Surface>
                 <Surface style={styles.surface}>
-                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(dialogs.COURSE_HANDICAP)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
+                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(DATA_TILES.COURSE_HANDICAP)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Course Hcap`}</Text>
                             <View style={styles.surfaceBody}>
@@ -270,7 +245,7 @@ function CalculateHandicap({ navigation, theme }) {
                     </TouchableRipple>
                 </Surface>
                 <Surface style={styles.surface}>
-                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(dialogs.PLAYING_HANDICAP)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
+                    <TouchableRipple style={styles.ripple} onPress={() => {showDialog(DATA_TILES.PLAYING_HANDICAP)}} borderless={true} rippleColor="rgba(0, 0, 0, .05)">
                         <React.Fragment>
                             <Text style={styles.surfaceHeader}>{`Playing Hcap`}</Text>
                             <View style={styles.surfaceBody}>
@@ -283,37 +258,27 @@ function CalculateHandicap({ navigation, theme }) {
                 </Surface>
             </View>
             <Portal>
-                    {currentDialog === dialogs.TEES && 
+                    {currentDialog === DATA_TILES.TEES && 
                         <SelectTeesDialog 
                             theme={theme}
+                            title={'Change Tees'}
                             dialogVisible={dialogVisible}
                             hideDialog={hideDialog}
                             course={course}
-                            onSelect={(tees, holes) => changeHoles(tees, holes)}
+                            onSelect={(tees, holes) => changeTees(tees, holes)}
                         />
                     }
-                    {currentDialog === dialogs.HANDICAP_INDEX && 
-                        <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
-                            <Dialog.Content>
-                                <View style={styles.textInputDialog}>
-                                    <TextInput
-                                        autoFocus={true}
-                                        label={!!handicapError ? handicapError : "Handicap Index"}
-                                        value={handicap}
-                                        error={!!handicapError}
-                                        placeholder={"Handicap Index"}
-                                        onChangeText={text => changeHandicap(text)}
-                                        keyboardType={"number-pad"}
-                                    />
-                                </View>
-                            </Dialog.Content>
-                            <Dialog.Actions>
-                                <Button onPress={() => hideDialog()}>Cancel</Button>
-                                <Button onPress={() => changeHandicapIndex(handicap)}>Ok</Button>
-                            </Dialog.Actions>
-                        </Dialog>
+                    {currentDialog === DATA_TILES.HANDICAP_INDEX && 
+                        <HandicapIndexDialog 
+                            theme={theme}
+                            currentHandicap={handicapIndex}
+                            dialogVisible={dialogVisible}
+                            hideDialog={hideDialog}
+                            course={course}
+                            onClickOk={value => changeHandicapIndex(value)}
+                        />
                     }
-                    {currentDialog === dialogs.COURSE_HANDICAP && 
+                    {currentDialog === DATA_TILES.COURSE_HANDICAP && 
                         <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
                             <Dialog.Content>
                                 <View style={styles.switchView}>
@@ -323,7 +288,7 @@ function CalculateHandicap({ navigation, theme }) {
                             </Dialog.Content>
                         </Dialog>
                     }
-                    {currentDialog === dialogs.PLAYING_HANDICAP && 
+                    {currentDialog === DATA_TILES.PLAYING_HANDICAP && 
                         <Dialog style={styles.dialogStyle} visible={dialogVisible} onDismiss={hideDialog}>
                             <Dialog.Content>
                                 <View style={styles.textInputDialog}>
