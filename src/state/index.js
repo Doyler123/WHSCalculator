@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useReducer} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment'
 
 import { MAX_HISTORY } from '../constants'
 
@@ -103,6 +104,7 @@ export const defaultReducer = (state, action) => {
             tee: action.tee,
             holes: action.holes,
             handicapIndex: action.handicapIndex,
+            date: moment().format('DD/MM/YY')
           }]
 
           if(newHistory.length > MAX_HISTORY){
@@ -123,6 +125,9 @@ export const defaultReducer = (state, action) => {
 
         let newHistory = [...state.history]
         newHistory.push(newHistory.splice(state.history.indexOf(existingHistoryItem), 1)[0]);
+        newHistory[newHistory.length - 1].date = moment().format('DD/MM/YY');
+
+        storeValue(keys.HISTORY, JSON.stringify(newHistory))
 
         return {
           ...state,

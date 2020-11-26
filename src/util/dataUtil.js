@@ -78,6 +78,10 @@ export const calculateCourseHandicap = (tees, handicapIndex, withCRPar, round) =
     if(!isNaN(slope) && !isNaN(handicapIndex)){
         slope = parseFloat(slope);
         handicapIndex = parseFloat(handicapIndex);
+
+        if(tees.par < 50){
+            handicapIndex = parseFloat((handicapIndex / 2).toFixed(1))
+        }
         
         let courseHandicap = handicapIndex * (slope / 113)
         courseHandicap = Math.floor(courseHandicap * 10) / 10

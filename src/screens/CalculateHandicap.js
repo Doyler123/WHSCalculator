@@ -8,7 +8,7 @@ import { getTeesGender,
      getHandicapIndexDisplayValue, 
      calculateCourseHandicap, 
      calculatePlayingHandicap,
-     getHandicapDisplayValue } from '../util/dataUtil'
+     getHandicapDisplayValue } from '../util/dataUtil';
 import { useStateValue, actions } from '../state/';
 import { SCREENS } from '../constants';
 import EmptyScreen from '../components/EmptyScreen';
